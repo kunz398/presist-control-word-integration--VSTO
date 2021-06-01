@@ -9,7 +9,7 @@ namespace test
 {
     public partial class ThisAddIn
     {
-        private Microsoft.Office.Tools.Word.Controls.Button button = null;
+      
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
             Word.Application wb;
@@ -67,8 +67,9 @@ namespace test
                 Word.Selection selection = this.Application.Selection;
                 if (selection != null && rng != null)
                 {
-                    button = vstoDocument.Controls.AddButton(rng, 100, 30, queryResult_btnName);
-                    button.Click += Generatedbtn_Click;
+                    Button button = new Button();
+                    button.Click += new EventHandler(Generatedbtn_Click);
+                    button = vstoDocument.Controls.AddButton(rng, 100, 30, queryResult_btnName);        
                     button.Text = queryResult_btnText;
                     button.Name = queryResult_btnName;
                 }
@@ -137,6 +138,8 @@ namespace test
                 Word.Selection selection = this.Application.Selection;
                 if (selection != null && rng != null)
                 {
+                    Button button = new Button();
+                    button.Click += new EventHandler(Generatedbtn_Click);
                     button = vstoDocument.Controls.AddButton(rng, 100, 30, queryResult_btnName);
                     button.Click += Generatedbtn_Click;
                     button.Text = queryResult_btnText;
@@ -152,6 +155,8 @@ namespace test
             if (selection != null && selection.Range != null)
             {
                 string name = "myBtn";
+                Button button = new Button();
+                button.Click += new EventHandler(Generatedbtn_Click);
                 button = vstoDocument.Controls.AddButton(selection.Range, 100, 30, name);
                 button.Click += Generatedbtn_Click; //for the click function
                 button.Text = "I am A Generated Button";
