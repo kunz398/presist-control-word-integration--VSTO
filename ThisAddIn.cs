@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using Word = Microsoft.Office.Interop.Word;
 using Microsoft.Office.Tools.Word;
 using Microsoft.Office.Core;
@@ -94,44 +94,14 @@ namespace test
                 Microsoft.Office.Core.DocumentProperties properties = (DocumentProperties)Globals.ThisAddIn.Application.ActiveDocument.CustomDocumentProperties;
 
                 //get doc info about start pos
-                if (properties.Cast<DocumentProperty>().Where(c => c.Name == "startPosition").Count() > 0)
-                {
-                    queryResult_StartPosition = properties["startPosition"].Value;
-                }
-                else
-                {
-                    queryResult_StartPosition = String.Empty;
-                }
+                queryResult_StartPosition = loadInfoInProp("startPosition", properties);
                 //get doc info about end pos
-
-                if (properties.Cast<DocumentProperty>().Where(c => c.Name == "endPosition").Count() > 0)
-                {
-                    queryResult_EndPosition = properties["endPosition"].Value;
-                }
-                else
-                {
-                    queryResult_EndPosition = String.Empty;
-                }
+                queryResult_EndPosition = loadInfoInProp("endPosition", properties);
                 //get info about btn name
-                if (properties.Cast<DocumentProperty>().Where(c => c.Name == "btnName").Count() > 0)
-                {
-                    queryResult_btnName = properties["btnName"].Value;
-                }
-                else
-                {
-                    queryResult_btnName = String.Empty;
-                }
-
+                queryResult_btnName = loadInfoInProp("btnName", properties);
                 //get info about btn text
-                if (properties.Cast<DocumentProperty>().Where(c => c.Name == "btnText").Count() > 0)
-                {
-                    queryResult_btnText = properties["btnText"].Value;
-                }
-                else
-                {
-                    queryResult_btnText = String.Empty;
-                }
-
+                queryResult_btnText = loadInfoInProp("btnText", properties);
+     
 
                 Document vstoDocument = Globals.Factory.GetVstoObject(this.Application.ActiveDocument);
                 Word.Range rng = vstoDocument.Range(queryResult_StartPosition, queryResult_EndPosition);
@@ -155,11 +125,12 @@ namespace test
             if (selection != null && selection.Range != null)
             {
                 string name = "myBtn";
+                string text = "I am A Generated Button";
                 Button button = new Button();
                 button.Click += new EventHandler(Generatedbtn_Click);
                 button = vstoDocument.Controls.AddButton(selection.Range, 100, 30, name);
                 button.Click += Generatedbtn_Click; //for the click function
-                button.Text = "I am A Generated Button";
+                button.Text = text;
                 button.Name = name;
 
                 /*this part is done so that when the document is closed the button state is saved in the document property*/
@@ -169,51 +140,45 @@ namespace test
                 Microsoft.Office.Core.DocumentProperties properties = (DocumentProperties)Globals.ThisAddIn.Application.ActiveDocument.CustomDocumentProperties;
 
                 //save the start range pos
-                if (properties.Cast<DocumentProperty>().Where(c => c.Name == "startPosition").Count() == 0)
-                {
-                    properties.Add("startPosition", false, MsoDocProperties.msoPropertyTypeString, startPosition);
-                }
-                else
-                {
-                    properties["startPosition"].Value = startPosition;
-                    Globals.ThisAddIn.Application.ActiveDocument.Saved = false; //important somtimes
-                }
-
+                saveInfoInProp("startPosition", startPosition, properties);
                 //save the End range pos
-                if (properties.Cast<DocumentProperty>().Where(c => c.Name == "endPosition").Count() == 0)
-                {
-                    properties.Add("endPosition", false, MsoDocProperties.msoPropertyTypeString, endPosition);
-                }
-                else
-                {
-                    properties["endPosition"].Value = endPosition;
-                    Globals.ThisAddIn.Application.ActiveDocument.Saved = false; //important somtimes
-                }
-
+                saveInfoInProp("endPosition", endPosition, properties);
                 // Store Button Info
-                if (properties.Cast<DocumentProperty>().Where(c => c.Name == "btnName").Count() == 0)
-                {
-                    properties.Add("btnName", false, MsoDocProperties.msoPropertyTypeString, name);
-                }
-                else
-                {
-                    properties["btnName"].Value = startPosition;
-                    Globals.ThisAddIn.Application.ActiveDocument.Saved = false; //important somtimes
-                }
-
-                if (properties.Cast<DocumentProperty>().Where(c => c.Name == "btnText").Count() == 0)
-                {
-                    properties.Add("btnText", false, MsoDocProperties.msoPropertyTypeString, "I am A Generated Button");
-                }
-                else
-                {
-                    properties["btnText"].Value = "I am A Generated Button";
-                    Globals.ThisAddIn.Application.ActiveDocument.Saved = false; //important somtimes
-                }
+                saveInfoInProp("btnName", name, properties);
+                saveInfoInProp("btnText", text, properties);
 
             }//end of if selection != null && selection.Range != null
 
         }//end of WhenRibionBtnIsClicked Method
+
+        void saveInfoInProp(string name,string value, Microsoft.Office.Core.DocumentProperties properties)
+        {
+            //save the start range pos
+            if (properties.Cast<DocumentProperty>().Where(c => c.Name == "startPosition").Count() == 0)
+            {
+                properties.Add(name, false, MsoDocProperties.msoPropertyTypeString, value);
+            }
+            else
+            {
+                properties[name].Value = value;
+                Globals.ThisAddIn.Application.ActiveDocument.Saved = false; //important somtimes
+            }
+        }
+
+        string loadInfoInProp(string name, Microsoft.Office.Core.DocumentProperties properties)
+        {
+            string value;
+         
+            if (properties.Cast<DocumentProperty>().Where(c => c.Name == "startPosition").Count() > 0)
+            {
+                value = properties[name].Value;
+            }
+            else
+            {
+                value = String.Empty;
+            }            
+            return value;
+        }
 
         void Generatedbtn_Click(object sender, EventArgs e)
         {
