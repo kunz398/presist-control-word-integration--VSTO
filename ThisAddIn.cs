@@ -12,7 +12,7 @@ namespace test
       
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
-            Word.Application wb;
+           Word.Application wb;
             wb = this.Application;
             if (wb.Documents.Count > 0)
             {
@@ -23,44 +23,14 @@ namespace test
                 Microsoft.Office.Core.DocumentProperties properties = (DocumentProperties)Globals.ThisAddIn.Application.ActiveDocument.CustomDocumentProperties;
 
                 //get doc info about start pos
-                if (properties.Cast<DocumentProperty>().Where(c => c.Name == "startPosition").Count() > 0)
-                {
-                    queryResult_StartPosition = properties["startPosition"].Value;
-                }
-                else
-                {
-                    queryResult_StartPosition = String.Empty;
-                }
+                queryResult_StartPosition = loadInfoInProp("startPosition", properties);
                 //get doc info about end pos
-                
-                if (properties.Cast<DocumentProperty>().Where(c => c.Name == "endPosition").Count() > 0)
-                {
-                    queryResult_EndPosition = properties["endPosition"].Value;
-                }
-                else
-                {
-                    queryResult_EndPosition = String.Empty;
-                }
+                queryResult_EndPosition = loadInfoInProp("endPosition", properties);
                 //get info about btn name
-                if (properties.Cast<DocumentProperty>().Where(c => c.Name == "btnName").Count() > 0)
-                {
-                    queryResult_btnName = properties["btnName"].Value;
-                }
-                else
-                {
-                    queryResult_btnName = String.Empty;
-                }
-
+                queryResult_btnName = loadInfoInProp("btnName", properties);
                 //get info about btn text
-                if (properties.Cast<DocumentProperty>().Where(c => c.Name == "btnText").Count() > 0)
-                {
-                    queryResult_btnText = properties["btnText"].Value;
-                }
-                else
-                {
-                    queryResult_btnText = String.Empty;
-                }
-
+                queryResult_btnText = loadInfoInProp("btnText", properties);
+     
 
                 Document vstoDocument = Globals.Factory.GetVstoObject(this.Application.ActiveDocument);
                 Word.Range rng = vstoDocument.Range(queryResult_StartPosition, queryResult_EndPosition);
@@ -69,7 +39,8 @@ namespace test
                 {
                     Button button = new Button();
                     button.Click += new EventHandler(Generatedbtn_Click);
-                    button = vstoDocument.Controls.AddButton(rng, 100, 30, queryResult_btnName);        
+                    button = vstoDocument.Controls.AddButton(rng, 100, 30, queryResult_btnName);
+                    button.Click += Generatedbtn_Click;
                     button.Text = queryResult_btnText;
                     button.Name = queryResult_btnName;
                 }
